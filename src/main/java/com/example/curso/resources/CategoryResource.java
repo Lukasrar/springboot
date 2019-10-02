@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.curso.dto.CategoryDTO;
 import com.example.curso.entities.Category;
 import com.example.curso.services.CategoryService;
 
@@ -26,20 +27,20 @@ public class CategoryResource {
 	private CategoryService service;
 	
 	@GetMapping 
-	public ResponseEntity<List<Category>> findAll(){
+	public ResponseEntity<List<CategoryDTO>> findAll(){
 
-		List<Category> list = service.findAll();
+		List<CategoryDTO> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	@PostMapping
-	public ResponseEntity<Category> insert(@RequestBody Category obj) {
-		obj = service.insert(obj);
+	public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO dto) {
+		CategoryDTO newDto = service.insert(dto);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-				.path("/{id").buildAndExpand(obj.getId()).toUri();
+				.path("/{id").buildAndExpand(newDto.getId()).toUri();
 	
-		return ResponseEntity.created(uri).body(obj);
+		return ResponseEntity.created(uri).body(newDto);
 	}
 	
 	@DeleteMapping(value = "/{id}")
@@ -49,9 +50,9 @@ public class CategoryResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category obj){
-		obj = service.update(id, obj);
-		return ResponseEntity.ok().body(obj);
+	public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO dto){
+		dto = service.update(id, dto);
+		return ResponseEntity.ok().body(dto);
 	}
 }
 
