@@ -6,6 +6,7 @@ import java.time.Instant;
 import com.example.curso.entities.Order;
 import com.example.curso.entities.User;
 import com.example.curso.entities.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class OrderDTO implements Serializable{
 	
@@ -14,6 +15,8 @@ public class OrderDTO implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private Long id;
+	
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
     private OrderStatus status;
     private Long clientId;
