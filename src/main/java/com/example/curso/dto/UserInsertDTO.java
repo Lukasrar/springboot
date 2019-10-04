@@ -2,6 +2,7 @@ package com.example.curso.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.validator.constraints.Length;
@@ -17,11 +18,16 @@ public class UserInsertDTO implements Serializable {
 	@NotEmpty(message = "Cant be empty" )
 	@Length(min = 5, max = 80, message = "lenght must be between 5 and 80")
 	private String name;
+	
+	@NotEmpty(message = "Cant be empty")
+	@Email(message = "Cant be empty")
 	private String email;
 	
 	@NotEmpty(message = "Cant be empty" )
 	@Length(min = 8, max = 20, message = "lenght must be between 8 and 20")
 	private String phone;
+	
+	@NotEmpty(message = "Cant be empty")
 	private String password;
 
 	public UserInsertDTO() {
