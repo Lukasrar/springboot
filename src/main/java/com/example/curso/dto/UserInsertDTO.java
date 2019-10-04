@@ -8,7 +8,9 @@ import javax.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
 import com.example.curso.entities.User;
+import com.example.curso.services.validation.UserInsertValid;
 
+@UserInsertValid
 public class UserInsertDTO implements Serializable {
 	/**
 	 * 

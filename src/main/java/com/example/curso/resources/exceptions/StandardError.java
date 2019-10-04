@@ -60,6 +60,10 @@ public class StandardError implements Serializable {
 		this.path = path;
 	}
 
+	public StandardError () {
+		
+	}
+	
 	public StandardError(Instant timestamp, Integer status, String error, String message, String path) {
 		super();
 		this.timestamp = timestamp;
