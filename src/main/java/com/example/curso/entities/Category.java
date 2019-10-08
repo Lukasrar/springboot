@@ -1,6 +1,7 @@
 package com.example.curso.entities;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,9 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
 
 @Entity
 @Table(name = "tb_category")
@@ -26,6 +27,9 @@ public class Category implements Serializable {
 
 	@ManyToMany(mappedBy = "categories")
 	private Set<Product> products = new HashSet<>();
+
+	private Instant createdAt;
+	private Instant modifiedAt;
 
 	public Category() {
 
@@ -55,6 +59,26 @@ public class Category implements Serializable {
 
 	public Set<Product> getProducts() {
 		return products;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public Instant getModifiedAt() {
+		return modifiedAt;
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		modifiedAt = Instant.now();
+	}
+
+	@PrePersist
+	public void prePersist() {
+		Instant now = Instant.now();
+		modifiedAt = now;
+		createdAt = now;
 	}
 
 	@Override
