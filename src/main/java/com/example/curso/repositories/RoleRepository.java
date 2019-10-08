@@ -3,9 +3,7 @@ package com.example.curso.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.curso.entities.Role;
-import com.example.curso.entities.User;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
-	User findByEmail(String email);
 }
