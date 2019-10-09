@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.curso.exceptions.ResourceNotFoundException;
 import com.example.curso.services.exceptions.DatabaseException;
+import com.example.curso.services.exceptions.JWTAuthenticationException;
 
 @ControllerAdvice
 public class ResourceExecptionHandler {
@@ -43,4 +44,13 @@ public class ResourceExecptionHandler {
 		}
 		return ResponseEntity.status(status).body(err);
 	}
+	
+	@ExceptionHandler(JWTAuthenticationException.class)
+	public ResponseEntity<StandardError> jwtAuthenticationException(JWTAuthenticationException e, HttpServletRequest request){
+		String error = "Authentication error";
+		HttpStatus status = HttpStatus.UNAUTHORIZED;
+		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
 }
