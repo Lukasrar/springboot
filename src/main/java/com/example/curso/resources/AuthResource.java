@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.curso.dto.CredentialsDTO;
+import com.example.curso.dto.EmailDTO;
 import com.example.curso.dto.TokenDTO;
 import com.example.curso.services.AuthService;
 
@@ -24,4 +25,15 @@ public class AuthResource {
 		return ResponseEntity.ok().body(tokenDTO);
 	}
 	
+	@PostMapping("/refresh")
+	public ResponseEntity<TokenDTO> refresh() {
+		TokenDTO tokenDTO = service.refreshToken();
+		return ResponseEntity.ok().body(tokenDTO);
+	}
+	
+	@PostMapping("/forgot")
+	public ResponseEntity<Void> forgot(@RequestBody EmailDTO dto) {
+		service.sendNewPassword(dto.getEmail());
+		return ResponseEntity.noContent().build();
+	}
 }
