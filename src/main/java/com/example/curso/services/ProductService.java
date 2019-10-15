@@ -31,8 +31,8 @@ public class ProductService {
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
-	public Page<ProductDTO> findAllPaged(Pageable pageable) {
-		Page<Product> list = repository.findAll(pageable);
+	public Page<ProductDTO> findAllPaged(String name, Pageable pageable) {
+		Page<Product> list = repository.findByNameContainingIgnoreCase(name, pageable);
 		return list.map(e -> new ProductDTO(e));
 	}
 	
@@ -92,5 +92,35 @@ public class ProductService {
 			setProductCategories(entity, dto.getCategories());
 		}
 
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductDTO> findByCategoryPaged(Long categoryId, Pageable Pageable) {
+		Category category = categoryRepository.getOne(categoryId);
+		Page<Product> products = repository.findByCategory(category, Pageable);
+		return products.map(e -> new ProductDTO(e));
+	}
+	
+	@Transactional
+	public void addCategory(long id, CategoryDTO dto) {
+		Product product = repository.getOne(id);
+		Category category = categoryRepository.getOne(dto.getId());
+		product.getCategories().add(category);
+		repository.save(product);
+	}
+	
+	@Transactional
+	public void removeCategory(long id, CategoryDTO dto) {
+		Product product = repository.getOne(id);
+		Category category = categoryRepository.getOne(dto.getId());
+		product.getCategories().remove(category);
+		repository.save(product);
+	}
+	
+	@Transactional
+	public void setCategories(Long id, List<CategoryDTO> dto) {
+		Product product = repository.getOne(id);
+		setProductCategories(product, dto);
+		repository.save(product);
 	}
 }
