@@ -1,9 +1,12 @@
 package com.example.curso.services;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +16,13 @@ import com.example.curso.dto.OrderDTO;
 import com.example.curso.dto.OrderItemDTO;
 import com.example.curso.entities.Order;
 import com.example.curso.entities.OrderItem;
+import com.example.curso.entities.Product;
 import com.example.curso.entities.User;
+import com.example.curso.entities.enums.OrderStatus;
 import com.example.curso.exceptions.ResourceNotFoundException;
+import com.example.curso.repositories.OrderItemRepository;
 import com.example.curso.repositories.OrderRepository;
+import com.example.curso.repositories.ProductRepository;
 import com.example.curso.repositories.UserRepository;
 
 @Service
@@ -24,7 +31,13 @@ public class OrderService {
 	private OrderRepository repository;
 	
 	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private OrderItemRepository orderItemRepository;
 	
 	@Autowired
 	private AuthService authService;
@@ -60,5 +73,38 @@ public class OrderService {
 		User client = userRepository.getOne(clientId);
 		List<Order> list = repository.findByClient(client);
 		return list.stream().map( e -> new OrderDTO(e)).collect(Collectors.toList());
+	}
+
+	@Transactional
+	public OrderDTO placeOrder(List<OrderItemDTO> dto) {
+		User client = authService.authenticated();
+		Order order = new Order(null, Instant.now(), OrderStatus.WAITING_PAIMENT, client);
+		
+		for(OrderItemDTO itemDto: dto) {
+			Product product = productRepository.getOne(itemDto.getProductId());
+			OrderItem item = new OrderItem(order, product, itemDto.getQuantity(), itemDto.getPrice());
+			order.getItems().add(item);
+		}
+		repository.save(order);
+		orderItemRepository.saveAll(order.getItems());
+		
+		return new OrderDTO(order);
+	}
+	
+	@Transactional
+	public OrderDTO update(Long id, OrderDTO dto) {
+		try {
+			Order entity = repository.getOne(id);
+			updateData(entity, dto);
+			entity = repository.save(entity);
+			return new OrderDTO(entity);
+		}catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
+
+	}
+
+	private void updateData(Order entity, OrderDTO dto) {
+		entity.setStatus(dto.getStatus());
 	}
 }

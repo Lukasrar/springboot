@@ -15,6 +15,7 @@ import com.example.curso.exceptions.ResourceNotFoundException;
 import com.example.curso.services.exceptions.DatabaseException;
 import com.example.curso.services.exceptions.JWTAuthenticationException;
 import com.example.curso.services.exceptions.JWTAuthorizationException;
+import com.example.curso.services.exceptions.ParamFormatException;
 
 @ControllerAdvice
 public class ResourceExecptionHandler {
@@ -30,6 +31,14 @@ public class ResourceExecptionHandler {
 	@ExceptionHandler(DatabaseException.class)
 	public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request){
 		String error = "Database error";
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
+	@ExceptionHandler(ParamFormatException.class)
+	public ResponseEntity<StandardError> paramFormat(ParamFormatException e, HttpServletRequest request){
+		String error = "Format error";
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);

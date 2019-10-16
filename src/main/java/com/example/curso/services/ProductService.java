@@ -1,7 +1,9 @@
 package com.example.curso.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -22,6 +24,7 @@ import com.example.curso.exceptions.ResourceNotFoundException;
 import com.example.curso.repositories.CategoryRepository;
 import com.example.curso.repositories.ProductRepository;
 import com.example.curso.services.exceptions.DatabaseException;
+import com.example.curso.services.exceptions.ParamFormatException;
 
 @Service
 public class ProductService {
@@ -31,11 +34,31 @@ public class ProductService {
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
-	public Page<ProductDTO> findAllPaged(String name, Pageable pageable) {
-		Page<Product> list = repository.findByNameContainingIgnoreCase(name, pageable);
+	public Page<ProductDTO> findByNameCategory(String name, String categoriesStr, Pageable pageable) {
+		Page<Product> list;
+		if(categoriesStr.equals("")) {
+			list = repository.findByNameContainingIgnoreCase(name, pageable);
+		}else {
+			List<Long> ids = parseIds(categoriesStr);
+			List<Category> categories = ids.stream().map(id -> categoryRepository.getOne(id)).collect(Collectors.toList());
+			list = repository.findByNameContainingIgnoreCaseAndCategoriesIn(name, categories, pageable);
+		}
 		return list.map(e -> new ProductDTO(e));
 	}
 	
+	private List<Long> parseIds(String categoriesStr) {
+		String[] idsArray = categoriesStr.split(",");
+		List<Long> list = new ArrayList<>();
+		for(String idStr : idsArray) {
+			try {
+				list.add(Long.parseLong(idStr));				
+			}catch(NumberFormatException e) {	
+				throw new ParamFormatException("Invalid categories format");
+			}
+		}
+		return list;
+	}
+
 	public ProductDTO findById(Long id) {
 		Optional<Product> obj = repository.findById(id);
 		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException(id));
